@@ -1,25 +1,28 @@
-var builder = WebApplication.CreateBuilder(args);
+using Microsoft.OpenApi.Models;
 
-// Add services to the container.
+var builder = WebApplication.CreateBuilder(args);
 
 var fileStorageEnv = Environment.GetEnvironmentVariable("FILE_STORAGE")?.Trim('"');
 var staticStorageDirectoryPath =
-    fileStorageEnv ?? builder.Configuration.GetSection("FileStorageSettings:BasePath").Value!;
+    fileStorageEnv ?? builder.Configuration.GetSection("FileStorageBasePath").Value!;
 builder.Services.AddSingleton(new FileStorageSettings(staticStorageDirectoryPath));
 builder.Services.AddControllers();
 builder.Services.AddScoped<FileStorageService>();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Version = "v1",
+        Title = "Meshy",
+        Description = "Generate Models with Meshy",
+    });
+});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 

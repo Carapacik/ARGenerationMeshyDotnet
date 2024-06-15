@@ -6,10 +6,10 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["ARModelGeneration.csproj", "."]
-RUN dotnet restore "ARModelGeneration.csproj"
+COPY ["ARModelGeneration/ARModelGeneration.csproj", "ARModelGeneration/"]
+RUN dotnet restore "ARModelGeneration/ARModelGeneration.csproj"
 COPY . .
-WORKDIR "/src/."
+WORKDIR "/src/ARModelGeneration"
 RUN dotnet build "ARModelGeneration.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
