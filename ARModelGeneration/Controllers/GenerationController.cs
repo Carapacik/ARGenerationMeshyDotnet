@@ -33,13 +33,13 @@ namespace ARModelGeneration.Controllers
         /// pbr: PBR style
         /// </remarks>
         [HttpGet("text-2-result")]
-        public async Task<string> TextTo3DResult(string prompt, string mode = "preview", string artStyle = "cartoon")
+        public async Task<string> Text2Result(string prompt, string artStyle = "realistic")
         {
             using StringContent jsonContent = new(
                 JsonSerializer.Serialize(new
                 {
                     prompt,
-                    mode,
+                    mode = "preview",
                     art_style = artStyle,
                     negative_prompt = "low quality, low resolution, ugly",
                 }),
@@ -64,6 +64,24 @@ namespace ARModelGeneration.Controllers
             var result = await _httpClient.GetAsync(string.Format($"https://api.meshy.ai/v2/text-to-3d/{resultId}"));
             var responseString = await result.Content.ReadAsStringAsync();
             return responseString;
+        }
+
+        /// <summary>
+        /// Refine model by resultId
+        /// </summary>
+        [HttpGet("refine-model")]
+        public async Task RefineModel(string resultId)
+        {
+
+            using StringContent jsonContent = new(
+                JsonSerializer.Serialize(new
+                {
+                    mode = "refine",
+                    preview_task_id = resultId,
+                }),
+                Encoding.UTF8,
+                "application/json");
+            var result = await _httpClient.PostAsync(string.Format("https://api.meshy.ai/v2/text-to-3d"), jsonContent);
         }
     }
 }
